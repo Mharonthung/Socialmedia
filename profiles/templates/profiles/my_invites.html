@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title%}my invites {% endblock title%}
+
+{% block content %}
+
+    {% if is_empty %}
+    <h1>No friend requests</h1>
+    {% endif %}
+
+    <ul>
+        {% for obj in qs %}
+            <div class="ui segment" style="color: white;background-color:#363062;">
+                <div class="ui grid">
+                    <div class="row">
+                        <div class="three wide column">
+                            <img src="{{ obj.avatar.url }}" alt="" class="ui small circular image">
+                        </div>
+                        <div class="thirteen wide column">
+                            <h3>{{obj.user}}</h3>
+                            <p>{{ obj.bio }}</p>
+                            <a href="{{obj.get_absolute_url}}"><button class="ui primary button w-big ">See profile</button></a>
+
+                            <form action="{% url 'profiles:accept_invitation' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="profile_pk" value="{{ obj.pk }}">
+                                <button type="submit" class="ui positive basic button w-big "><i class="check icon ">Accept invite</i></button>
+                               
+                            </form>
+                            <form action="{% url 'profiles:reject_invitation' %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="profile_pk" value="{{ obj.pk }}">
+                                <button type="submit" class="ui negative basic button w-big "><i class="close icon ">Reject invite</i></button>
+                            </form> 
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </ul>
+{% endblock content %}

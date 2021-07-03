@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title%}my invites {% endblock title%}
+
+{% block content %}
+   {% if is_empty %}
+        No profiles to interact with
+   {% endif %}
+
+   {% for obj in object_list %}
+        <div class="ui segment" style="color: white;background-color:#363062;">
+            <div class="ui grid">
+                <div class="row">
+                    <div class="three wide column">
+                        <img src="{{obj.avatar.url}}" alt="" class="ui small circular image">
+                    </div>
+                    <div class="thirteen wide column">
+                        <h3>{{obj.user}}</h3>
+                        <p>{{obj.bio}}</p>
+                        <a href="{{obj.get_absolute_url}}">
+                        <button class="ui primary button w-big">See profile</button>
+                        </a>
+                   
+                    <!-- add to friends lists -->
+                    {% if obj.user not in rel_receiver and obj.user not in rel_sender %}
+                        <form action="{% url 'profiles:send_invite' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="profile_pk" value="{{obj.pk}}">
+                            <button type="submit" class="ui positive basic button w-big"><i class="plus square icon"></i>Add to friends</button>
+                        </form>
+                    {% endif %}
+
+                    <!-- friend requesting send and Waiting for approval -->
+                    {% if obj.user in rel_receiver and request.user not in obj.friends.all %}
+                        <form action="" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="profile_pk" value="{{obj.pk}}">
+                            <button type="submit" class="ui disabled button w-big"><i class="user icon "></i>Waiting for approval</button>   
+                        </form>
+                    {% endif %}
+
+                     <!-- already in the user friend lists    -->
+                    {% if request.user in obj.friends.all %}
+                        <form action="{% url 'profiles:remove-friend' %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="profile_pk" value="{{obj.pk}}">
+                            <button type="submit" class="ui negative basic button  w-big"><i class="minus square icon"></i>Remove</button>
+                        </form>
+                    {% endif %}
+                </div>
+
+                </div>
+            </div>
+        </div>
+   {% endfor %}
+{% endblock content %}

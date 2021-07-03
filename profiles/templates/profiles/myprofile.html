@@ -1,0 +1,110 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <!--Custom css ADD HERE-->
+    
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <!--Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+
+    <!-- Semantic UI -->
+    <link rel="stylesheet" type='text/css' href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.14/semantic.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+  
+    <title>bffbook - {% block title %}{% endblock title %}</title>
+  </head>
+  <body class="my_body">
+    {% include 'main/navbar.html' %}
+    <div class="container">
+      
+<!-- semantic model -->
+<div class="ui modal" style="color: white;background-color:#363062;">
+    <i class="close icon"></i>
+    <div class="header"style="color: white;background-color:#363062;">
+      Update your profile
+    </div>
+    <div class="image content"style="color: white;background-color:#363062;">
+      <div class="ui medium image">
+        <img src="{{ profile.avatar.url }}">
+      </div>
+      <div class="description"style="color: white;background-color:#363062;">
+        <div class="ui header" style="color:white;">We've auto-chosen a profile image for you.</div>
+        <form action="" method="POST" class="ui form" enctype="multipart/form-data" style="padding: 2rem;"> 
+            {% csrf_token %}
+            {{ form }} 
+      </div>
+    </div>
+    <div class="actions"style="color: white;background-color:#363062;">
+      <button type="submit" class="ui positive right labeled icon button">
+        update
+        <i class="checkmark icon"></i>
+      </button>
+    </form>
+    </div>
+  </div>
+  
+
+
+
+<div class="ui segment" style="color: white;background-color:#363062;">
+    {% if confirm %}
+        <div class="ui green message">Your profile has been updated successfully!! </div>
+    {% endif %}
+    <h3>my profile: {{ request.user }}</h3>
+    <div class="ui grid">
+    <div class="row">
+        <div class="six wide column">
+            <img src="{{ profile.avatar.url}}" alt="" class="ui medium rounded image">
+        </div> 
+            <div class="ten wide column">
+                <table class="ui table" style="color: white;background-color:#363062;">
+                    <tbody>
+                        <tr>
+                            <td>username</td>
+                            <td>{{profile.user}}</td>
+                        </tr>
+                        <tr>
+                            <td>first name</td>
+                            <td>{{profile.first_name}}</td>
+                        </tr>
+                        <tr>
+                            <td>last name</td>
+                            <td>{{profile.last_name}}</td>
+                        </tr>
+                        <tr>
+                            <td>Bio</td>
+                            <td>{{profile.bio}}</td>
+                        </tr>
+                        <tr>
+                            <td>Friends</td>
+                            <td>{% for friend in profile.get_friends %}
+                                <ul>
+                                    <li>{{friend}}</li>
+                                </ul>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+    </div>
+</div>
+<button class="ui secondary button" id="modal-btn">Update your profile</button>  
+</div>
+
+{% load static %}
+<script src="{% static 'main.js' %}">
+
+</script>
+
+
+
+</body>
+</html>
