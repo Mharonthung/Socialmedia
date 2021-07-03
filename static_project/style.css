@@ -1,0 +1,44 @@
+.my_body {
+    background-color: #4D4C7D;
+}
+.my_nav {
+    border-radius: 0px ! important ;
+    background-color: #363062;
+}
+svg {
+    width: 40px;
+    height: 40px;
+}
+
+.mymodal {
+    height: 300px !important;
+    top: 200px !important;
+    font-size: 20px !important;
+}
+
+.mt-5 {
+    margin-top: 5px !important;
+}
+
+.mb-3 {
+    margin-bottom: 3px !important;
+}
+
+.w-big {
+    width: 200px !important;
+}
+.black {
+    background-color: black;
+}
+
+.bwhite-lg {
+    background-color: transparent !important;
+}
+.bwhite-sm {
+    background-color: transparent !important;
+    width: 10px !important;
+}
+.comment-box {
+    display: none;
+    color:black;
+}
