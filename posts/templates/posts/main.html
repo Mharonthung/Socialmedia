@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}main page{% endblock title %}
+
+{% block content %}
+<div class="ui one column stackable page grid">
+    <div class="column twelve wide">
+            <div class="ui segment" style="color: white; background-color:#363062;">
+                {% if post_added %}
+                    <div class="ui green message">Post added</div>
+                {% endif %}
+                <form action="" method="POST" class='ui form' style="background-color:#363062;"enctype="multipart/form-data">
+                    {% csrf_token %}
+                        {{p_form}}
+                    <button type='submit' name="submit_p_form" class="ui positive button w-full mt-5">Post</button>
+                </form>
+            </div>
+        {% for obj in qs %}
+
+        <div class="ui fluid card">
+            <div class="content" style="color: white; background-color:#363062;">
+                <div class="right floated meta">
+                    <div class="ui grid">
+                        {% ifequal request.user obj.author.user %}
+                        <span><a href="{% url 'posts:post-update' obj.pk %}"><button class="ui button bwhite-lg ">Update</button></a></span>
+                        <span><a href="{% url 'posts:post-delete' obj.pk %}"><button class="ui button bwhite-lg ">Delete</button></a></span>
+                        {% endifequal %}
+                    </div>    
+                </div>
+                <img class="ui avatar image" src={{obj.author.avatar.url}}> 
+                {{ obj.author.user }} - {{ obj.created|timesince}} ago
+            </div>
+            <div class="ui fluid image" style="background-color:#363062;">
+                {% if obj.image %}
+                    <img src={{obj.image.url}}>
+                {% endif %}
+            </div>
+            <div class="content" style="color: white; background-color:#363062;">
+                <h5 style="font-family:Arial, Helvetica, sans-serif; font-size: larger;"> {{ obj.content|safe }} </h5>
+                <div class="right floated">
+                    <form action="{% url 'posts:like-post-view' %}" method="POST" class='like-form' id='{{obj.id}}'>
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" value={{obj.id}}>
+                        
+                            <button type="submit" class="ui black button like-btn{{obj.id}}">
+                                {% if profile not in obj.liked.all %}
+                                    Like
+                                {% else %}
+                                    Unlike
+                                {% endif %}
+                            </button>
+                    </form>
+                </div>
+                <i class="comment blue icon" ></i>
+                <span> {{ obj.num_comments }} comments</span>
+                <i class="heart red icon"></i>
+                <span class="like-count{{obj.id}}"> {{obj.num_likes}} icon</span>
+            </div>
+            <div class="extra content" style="background-color:#4D4C7D;">
+                <button class="cmt_btn ui basic button" style="background-color:#827397;">show / hide comments</button>
+                <div class="comment-box">
+                {% if obj.comment_set.all %}
+                    {% for c in obj.comment_set.all %}
+                    
+                        <div class="ui segment" style="color: white;background-color:#363062;">
+                            <img class="ui avatar image" src={{c.user.avatar.url}}>
+                            <span>{{ c.user.user }} - {{ c.created|timesince}} ago</span>
+                            <div class='mt-5'>{{ c.body }}</div>
+                                {% ifequal request.user c.user.user %}
+                                    <span><a href="{% url 'posts:comment-delete' c.pk %}"><button class="ui button bwhite-lg ">Delete</button></a></span>
+                                {% endifequal %}
+                        </div>
+                    
+                    {% endfor %}
+                {% endif %}
+                </div>
+  
+                <form action="" method="POST"class='ui fluid form'>
+                    {% csrf_token %}
+                    <input type="hidden" name="post_id" value={{obj.id}}>
+                    {{ c_form }}
+                    <button type="submit" name="submit_c_form" class="ui black button mt-5 w-full">Comment</button>
+                </form>
+            </div>
+        </div>
+
+        {% endfor %}
+    </div>
+    
+</div>
+{% endblock content %}
+
+{% block scripts %} 
+    <script>
+        $( document ).ready(function() {
+            let display = false
+            $(".cmt_btn").click(function () {
+                if (display===false) {
+                    $(this).next(".comment-box").show("slow");
+                    display=true
+                } else {
+                    $(this).next(".comment-box").hide("slow");
+                    display=false
+                }  
+            });
+            //this is the js which controls the show and hide comment button
+
+            $('.like-form').submit(function(e){
+                e.preventDefault()//prevents refresh
+                
+                const post_id = $(this).attr('id')//this gets the post id 
+                
+                const likeText = $(`.like-btn${post_id}`).text()//this get the text value ie either like or unlike
+                const trim = $.trim(likeText)//this is for cleaning the data triming off blank spaces
+
+                const url = $(this).attr('action')//
+                
+                let res;
+                const likes = $(`.like-count${post_id}`).text()//like counter
+                const trimCount = parseInt(likes)//converting the string to integer
+                
+                $.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
+                        'post_id':post_id,
+                    },//we are matching the csrf token and passing the post id 
+                    success: function(response) {
+                        if(trim === 'Unlike') {
+                            $(`.like-btn${post_id}`).text('Like')
+                            res = trimCount - 1
+                        } else {
+                            $(`.like-btn${post_id}`).text('Unlike')
+                            res = trimCount + 1
+                        }
+
+                        $(`.like-count${post_id}`).text(res)
+                    },
+                    error: function(response) {
+                        console.log('error', response)
+                    }
+                })
+
+            })
+        });
+    </script>
+{% endblock scripts %}
